@@ -1,0 +1,109 @@
+Initial values of rate paramters:
+0.79604     0.33878     0.21688      1.5826     0.66084    0.095316    0.014242     0.11492
+current step: 2
+step size is 0.02
+current step: 3
+step size is 0.04
+current step: 4
+step size is 0.02
+current step: 5
+step size is 0.04
+maximum steps reached.
+Initial values of rate paramters:
+0.29515     0.61555     0.37348     0.28125    0.062643      0.4085    0.021187     0.09131
+current step: 2
+step size is 0.02
+ 
+current step: 3
+step size is 0.01
+ 
+current step: 4
+step size is 0.02
+ 
+current step: 5
+step size is 0.04
+ 
+ 
+maximum steps reached.
+k=1;
+rxn_rates_k(1,:) = rxn_rates; 
+gradient_k(1,:) = grdt;
+disp('Initial values of rate paramters:')
+Initial values of rate paramters:
+disp(num2str(rxn_rates))
+1  1  1  1  1  1  1  1
+
+while k<k_max
+    k = k+1;
+    ssize = 500*ceil(k/10);
+%     adpatively change the step size
+
+    cont_decrease_speed = 1;
+    while cont_decrease_speed
+        d_rate_exp = speed .* grdt .* rxn_rates;
+        rrate_exp = rrate_exp + d_rate_exp;
+        rxn_rates = exp(rrate_exp); 
+        [grdt, state_new, rxns_new, trxns_new] = gradient(state, t, input_coeffs, output_coeffs, rxn_rates, net.sub, ssize, rxns, trxns);
+        
+        cont_decrease_speed = 0;
+        if sum(abs(grdt) > abs(gradient_k(k-1,:)))>=4 & speed>=0.005 & max(abs(d_rate_exp)) > 5.e-03
+            speed = speed /2;
+            cont_decrease_speed = 0;
+            
+        elseif  abs(grdt) < abs(gradient_k(k-1,:))
+            if rand<0.5
+                speed = speed*2;
+%             else
+%                 speed = speed/2;
+            end
+            
+        else
+            if rand<1/2 & speed>=0.005
+                speed = speed /2;
+            else   speed = speed*2; 
+            end
+        end
+    
+%         grdt = gradient_new(data, t, input_coeffs, output_coeffs, rxn_rates, net.sub);
+    end 
+    disp(['current step: ' num2str(k-1)])
+    disp(['step size is ' num2str(speed)])
+    disp(' ')
+    state = state_new;
+    rxns = rxns_new;
+    trxns = trxns_new;
+    rxn_rates_k(k,:) = rxn_rates; 
+    gradient_k(k,:) = grdt;
+    
+    if  sum(abs(grdt./min_grad))<num_rxns
+        min_grad = grdt;
+        min_rate = rxn_rates;                    % save rxn rate with minimum gradient so far in "min_rates"
+    end
+  
+    if max(abs(d_rate_exp)) < 5.e-03
+        sprintf('Final step size: %5.3f \n', speed)
+        disp('Paramter values:')
+        disp(num2str(rxn_rates))
+        break
+    end
+    
+    if k == k_max
+        disp(' ')
+        disp('maximum steps reached.')
+    end
+end
+??? Undefined function or variable "rrate_exp".
+
+% Modify expression to add input arguments.
+% Example:
+%   a = [1 2 3; 4 5 6]; 
+%   foo(a);
+
+main_sgd
+Do you want to import stoichiometry matrix from files? Y/N [Y]: Please Specify the file of observation data:
+Please input the step size of gradient descent:Default step size: 0.01
+Counting common zeros... reducing combination candidates... doing rank tests... updating tableau
+Counting common zeros... reducing combination candidates... doing rank tests... updating tableau
+Counting common zeros... reducing combination candidates... doing rank tests... updating tableau
+Counting common zeros... reducing combination candidates... doing rank tests... updating tableau
+Found 4 elementary modes; examined 0 possible combinations
